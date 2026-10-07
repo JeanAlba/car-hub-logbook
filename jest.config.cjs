@@ -5,5 +5,10 @@ module.exports = {
   transform: {
     '^.+\\.ts$': ['@swc/jest'],
   },
-  collectCoverageFrom: ['src/services/**/*.ts', 'src/middlewares/**/*.ts'],
+  collectCoverageFrom: [
+    'src/controllers/**/*.ts',
+    'src/routes/**/*.ts',
+    'src/services/**/*.ts',
+    'src/middlewares/**/*.ts',
+  ],
 };

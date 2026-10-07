@@ -96,6 +96,14 @@ describe('carService', () => {
     });
   });
 
+  it('rethrows unexpected repository errors on create', async () => {
+    users.findById.mockResolvedValue(user);
+    cars.findByUserIdAndPlate.mockResolvedValue(null);
+    cars.create.mockRejectedValue(new Error('db down'));
+
+    await expect(carService.createCar(validData)).rejects.toThrow('db down');
+  });
+
   it('lists cars by user', async () => {
     cars.listByUserId.mockResolvedValue([createdCar]);
 
