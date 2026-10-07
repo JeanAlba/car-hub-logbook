@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-export async function conectarBanco(): Promise<void> {
+export async function connectDatabase(): Promise<void> {
   const url = process.env.MONGODB_URL;
 
   if (!url) {

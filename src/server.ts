@@ -1,17 +1,16 @@
 import 'dotenv/config';
-import { conectarBanco } from './configs/database';
+import { connectDatabase } from './config/database';
 import { app } from './app';
 
-const porta = Number(process.env.PORTA ?? 3000);
+const port = Number(process.env.PORT ?? 3000);
 
-conectarBanco()
+connectDatabase()
   .then(() => {
-    app.listen(porta, () => {
-      console.info(`server running on http://localhost:${porta}`);
-      console.info(`documentation on http://localhost:${porta}/documentacao`);
+    app.listen(port, () => {
+      console.info(`server running on http://localhost:${port}`);
     });
   })
-  .catch((erro: unknown) => {
-    console.error('could not connect to MongoDB', erro);
+  .catch((error: unknown) => {
+    console.error('could not connect to MongoDB', error);
     process.exit(1);
   });
