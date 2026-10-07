@@ -1,6 +1,6 @@
 import express, { type ErrorRequestHandler, type Request, type Response } from 'express';
 import { AppError } from './errors/appError';
-import { routes } from './router';
+import { routes } from './routes/router';
 
 function getErrorResponse(error: unknown): { status: number; message: string } {
   if (error instanceof AppError) {
