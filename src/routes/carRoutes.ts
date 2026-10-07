@@ -11,6 +11,7 @@ export const carRoutes = Router();
 
 carRoutes.post('/', validateCarUserId, validateCarData, controller.create);
 carRoutes.get('/', validateCarUserIdQuery, controller.list);
+carRoutes.get('/:id/summary', validateCarId, controller.summary);
 carRoutes.get('/:id', validateCarId, controller.getById);
 carRoutes.put('/:id', validateCarId, validateCarData, controller.update);
 carRoutes.delete('/:id', validateCarId, controller.remove);

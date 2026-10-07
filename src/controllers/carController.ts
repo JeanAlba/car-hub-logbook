@@ -43,3 +43,12 @@ export async function remove(req: Request<IdParams>, res: Response): Promise<voi
   }
   res.status(204).send();
 }
+
+export async function summary(req: Request<IdParams>, res: Response): Promise<void> {
+  const carSummary = await service.getCarSummary(req.params.id);
+  if (!carSummary) {
+    res.status(404).json({ message: 'Car not found' });
+    return;
+  }
+  res.status(200).json(carSummary);
+}

@@ -3,6 +3,7 @@ import * as serviceRecordRepository from '../../src/repositories/serviceRecordRe
 import * as userRepository from '../../src/repositories/userRepository';
 import * as carService from '../../src/services/carService';
 import type { Car, CarData } from '../../src/types/car';
+import type { ServiceRecord } from '../../src/types/serviceRecord';
 
 jest.mock('../../src/repositories/carRepository', () => ({
   create: jest.fn(),
@@ -14,6 +15,7 @@ jest.mock('../../src/repositories/carRepository', () => ({
 }));
 jest.mock('../../src/repositories/serviceRecordRepository', () => ({
   removeByCarId: jest.fn(),
+  listByCarId: jest.fn(),
 }));
 jest.mock('../../src/repositories/userRepository', () => ({
   findById: jest.fn(),
@@ -183,6 +185,55 @@ describe('carService', () => {
 
       await expect(carService.deleteCar(createdCar.id)).resolves.toBe(false);
       expect(records.removeByCarId).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('getCarSummary', () => {
+    const record = (overrides: Partial<ServiceRecord>): ServiceRecord => ({
+      id: 'r',
+      carId: createdCar.id,
+      type: 'MAINTENANCE',
+      description: 'x',
+      cost: 0,
+      date: '2026-01-01',
+      mileage: 0,
+      ...overrides,
+    });
+
+    it('returns null when the car does not exist', async () => {
+      cars.findById.mockResolvedValue(null);
+
+      await expect(carService.getCarSummary(createdCar.id)).resolves.toBeNull();
+      expect(records.listByCarId).not.toHaveBeenCalled();
+    });
+
+    it('returns zeros and a null date when there are no records', async () => {
+      cars.findById.mockResolvedValue(createdCar);
+      records.listByCarId.mockResolvedValue([]);
+
+      await expect(carService.getCarSummary(createdCar.id)).resolves.toEqual({
+        totalSpent: 0,
+        recordsCount: 0,
+        lastServiceDate: null,
+        spentByType: { MAINTENANCE: 0, REPAIR: 0, MODIFICATION: 0, OTHER: 0 },
+      });
+    });
+
+    it('sums costs by type, rounds to 2 decimals and finds the latest date', async () => {
+      cars.findById.mockResolvedValue(createdCar);
+      records.listByCarId.mockResolvedValue([
+        record({ type: 'MAINTENANCE', cost: 0.1, date: '2026-03-10' }),
+        record({ type: 'MAINTENANCE', cost: 0.2, date: '2026-05-02' }),
+        record({ type: 'REPAIR', cost: 100.555, date: '2026-01-31' }),
+        record({ type: 'MODIFICATION', cost: 2000, date: '2025-12-31' }),
+      ]);
+
+      await expect(carService.getCarSummary(createdCar.id)).resolves.toEqual({
+        totalSpent: 2100.86,
+        recordsCount: 4,
+        lastServiceDate: '2026-05-02',
+        spentByType: { MAINTENANCE: 0.3, REPAIR: 100.56, MODIFICATION: 2000, OTHER: 0 },
+      });
     });
   });
 });

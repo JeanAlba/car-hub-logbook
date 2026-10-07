@@ -3,7 +3,8 @@ import { isDuplicateKeyError } from '../errors/isDuplicateKeyError';
 import * as carRepository from '../repositories/carRepository';
 import * as serviceRecordRepository from '../repositories/serviceRecordRepository';
 import * as userRepository from '../repositories/userRepository';
-import type { Car, CarData, CarUpdateData } from '../types/car';
+import type { Car, CarData, CarSummary, CarUpdateData } from '../types/car';
+import { SERVICE_RECORD_TYPES } from '../types/serviceRecord';
 import { normalizePlate } from '../utils/normalizePlate';
 
 const duplicatedPlateError = (): AppError =>
@@ -80,4 +81,38 @@ export async function deleteCar(id: string): Promise<boolean> {
   }
 
   return deleted;
+}
+
+const roundMoney = (value: number): number => Math.round(value * 100) / 100;
+
+export async function getCarSummary(id: string): Promise<CarSummary | null> {
+  if (!(await carRepository.findById(id))) {
+    return null;
+  }
+
+  const records = await serviceRecordRepository.listByCarId(id);
+  const spentByType = Object.fromEntries(
+    SERVICE_RECORD_TYPES.map((type) => [type, 0]),
+  ) as CarSummary['spentByType'];
+  let totalSpent = 0;
+  let lastServiceDate: string | null = null;
+
+  for (const record of records) {
+    totalSpent += record.cost;
+    spentByType[record.type] += record.cost;
+    if (lastServiceDate === null || record.date > lastServiceDate) {
+      lastServiceDate = record.date;
+    }
+  }
+
+  for (const type of SERVICE_RECORD_TYPES) {
+    spentByType[type] = roundMoney(spentByType[type]);
+  }
+
+  return {
+    totalSpent: roundMoney(totalSpent),
+    recordsCount: records.length,
+    lastServiceDate,
+    spentByType,
+  };
 }
