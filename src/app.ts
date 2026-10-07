@@ -1,4 +1,6 @@
 import express, { type ErrorRequestHandler, type Request, type Response } from 'express';
+import swaggerUi from 'swagger-ui-express';
+import { swaggerDocument } from './config/swagger';
 import { AppError } from './errors/appError';
 import { routes } from './routes/router';
 
@@ -40,6 +42,7 @@ function respondRouteNotFound(_req: Request, res: Response): void {
 export const app = express();
 
 app.use(express.json());
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use(routes);
 app.use(respondRouteNotFound);
 app.use(handleError);

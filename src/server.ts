@@ -8,6 +8,7 @@ connectDatabase()
   .then(() => {
     app.listen(port, () => {
       console.info(`server running on http://localhost:${port}`);
+      console.info(`documentation on http://localhost:${port}/docs`);
     });
   })
   .catch((error: unknown) => {
