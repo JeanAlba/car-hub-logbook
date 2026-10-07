@@ -1,0 +1,23 @@
+meta {
+  name: get-car-summary
+  type: http
+  seq: 11
+}
+
+get {
+  url: {{baseUrl}}/cars/{{carId}}/summary
+  body: none
+  auth: none
+}
+
+script:post-response {
+  if (typeof bru.setNextRequest === 'function') {
+    bru.setNextRequest('create-service-record');
+  }
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+}

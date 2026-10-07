@@ -1,0 +1,28 @@
+meta {
+  name: create-car-invalid
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/cars
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "userId": "{{userId}}",
+    "brand": ""
+  }
+}
+
+tests {
+  test("status is 400", function() {
+    expect(res.getStatus()).to.equal(400);
+  });
+}

@@ -1,0 +1,39 @@
+meta {
+  name: create-service-record
+  type: http
+  seq: 12
+}
+
+post {
+  url: {{baseUrl}}/service-records
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "carId": "{{carId}}",
+    "type": "MAINTENANCE",
+    "description": "Troca de oleo e filtro",
+    "cost": 450.5,
+    "date": "2026-02-15",
+    "mileage": 36500,
+    "warrantyMonths": 6
+  }
+}
+
+script:post-response {
+  if (res.getStatus() === 201) {
+    bru.setVar("serviceRecordId", res.getBody().id);
+  }
+}
+
+tests {
+  test("status is 201", function() {
+    expect(res.getStatus()).to.equal(201);
+  });
+}

@@ -1,0 +1,39 @@
+meta {
+  name: create-car
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/cars
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "userId": "{{userId}}",
+    "brand": "Volkswagen",
+    "model": "Golf GTI",
+    "year": 2020,
+    "plate": "ABC1D23",
+    "mileage": 35000,
+    "nickname": "Daily"
+  }
+}
+
+script:post-response {
+  if (res.getStatus() === 201) {
+    bru.setVar("carId", res.getBody().id);
+  }
+}
+
+tests {
+  test("status is 201", function() {
+    expect(res.getStatus()).to.equal(201);
+  });
+}

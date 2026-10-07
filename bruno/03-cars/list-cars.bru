@@ -1,0 +1,21 @@
+meta {
+  name: list-cars
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/cars?userId={{userId}}
+  body: none
+  auth: none
+}
+
+params:query {
+  userId: {{userId}}
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+}
