@@ -9,3 +9,8 @@ export async function findByEmail(email: string): Promise<UserCredentials | null
   const item = await UserModel.findOne({ email }).select('+password');
   return item ? { ...(item.toJSON() as unknown as User), password: item.password } : null;
 }
+
+export async function findById(id: string): Promise<User | null> {
+  const item = await UserModel.findById(id);
+  return item ? (item.toJSON() as unknown as User) : null;
+}
