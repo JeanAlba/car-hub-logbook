@@ -49,11 +49,11 @@ A interface se inspira nos painéis digitais GM dos anos 90 (Monza Classic e Kad
 
 ## Telas
 
-| Login (cluster digital interativo) | Visão geral (`Geral`) |
+| Login | Visão geral |
 |---|---|
 | ![Login](docs/screenshots/login.png) | ![Visão geral](docs/screenshots/dashboard.png) |
 
-| Novo serviço (data PT-BR e prévia de garantia) | Detalhe do carro e diário de serviços |
+| Novo serviço | Detalhe do carro |
 |---|---|
 | ![Novo serviço](docs/screenshots/novo-servico.png) | ![Detalhe do carro](docs/screenshots/detalhe-carro.png) |
 
