@@ -1,0 +1,17 @@
+meta {
+  name: get-car-invalid-id
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{baseUrl}}/cars/123
+  body: none
+  auth: none
+}
+
+tests {
+  test("status is 400", function() {
+    expect(res.getStatus()).to.equal(400);
+  });
+}

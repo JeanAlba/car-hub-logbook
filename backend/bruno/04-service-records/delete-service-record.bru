@@ -1,0 +1,23 @@
+meta {
+  name: delete-service-record
+  type: http
+  seq: 17
+}
+
+delete {
+  url: {{baseUrl}}/service-records/{{serviceRecordId}}
+  body: none
+  auth: none
+}
+
+script:post-response {
+  if (typeof bru.setNextRequest === 'function') {
+    bru.setNextRequest('delete-car');
+  }
+}
+
+tests {
+  test("status is 204", function() {
+    expect(res.getStatus()).to.equal(204);
+  });
+}

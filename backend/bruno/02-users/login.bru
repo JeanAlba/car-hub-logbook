@@ -1,0 +1,38 @@
+meta {
+  name: login
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/login
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "email": "{{email}}",
+    "password": "secret123"
+  }
+}
+
+vars:pre-request {
+  baseUrl: localhost:3000
+}
+
+script:post-response {
+  if (res.getStatus() === 200) {
+    bru.setVar("userId", res.getBody().id);
+  }
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+}

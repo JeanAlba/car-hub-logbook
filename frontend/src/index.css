@@ -1,0 +1,131 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import '@fontsource-variable/geist';
+@import '@fontsource-variable/geist-mono';
+
+@custom-variant dark (&:is(.dark *));
+
+/* 90s GM digital cluster palette: deep #08090a backdrop, charcoal #141619 panels, recessed #070809 wells. */
+:root {
+  --brand: #e68a00;
+  --brand-glow: rgb(230 138 0 / 0.28);
+  --redline: #991b1b;
+
+  --background: #08090a;
+  --foreground: #f2f2ef;
+  --display: #070809;
+  --card: #141619;
+  --card-foreground: #f2f2ef;
+  --popover: #181b1f;
+  --popover-foreground: #f2f2ef;
+  --primary: var(--brand);
+  --primary-foreground: #070809;
+  --secondary: #1e2126;
+  --secondary-foreground: #f2f2ef;
+  --muted: #181a1e;
+  --muted-foreground: #96989d;
+  --accent: #23272e;
+  --accent-foreground: #f2f2ef;
+  --destructive: #e05252;
+  --border: #2a2e35;
+  --input: #30353e;
+  --ring: var(--brand);
+  --success: #4ade80;
+  --warning: #f5a524;
+  --radius: 0.25rem;
+}
+
+:root[data-accent='green'] {
+  --brand: #3dff8b;
+  --brand-glow: rgb(61 255 139 / 0.25);
+}
+
+@theme inline {
+  --font-sans: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Geist Mono Variable', ui-monospace, monospace;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-display: var(--display);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-redline: var(--redline);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-brand: var(--brand);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+
+  --radius-sm: calc(var(--radius) - 1px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 2px);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  html {
+    overflow-y: scroll;
+    scrollbar-gutter: stable;
+  }
+
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+
+  input[type='number']::-webkit-inner-spin-button,
+  input[type='number']::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  input[type='number'] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+}
+
+@utility glow {
+  text-shadow: 0 0 10px var(--brand-glow);
+}
+
+@utility tabular {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+@utility lcd-well {
+  background-color: var(--display);
+  border: 1px solid var(--border);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.04);
+}
+
+@utility cluster-bezel {
+  border-top: 2px solid var(--redline);
+}
+
+/* html already reserves the scrollbar gutter, so neutralize RemoveScroll's extra margin/padding compensation. */
+html body[data-scroll-locked] {
+  margin-right: 0 !important;
+  padding-right: 0 !important;
+}
