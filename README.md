@@ -1,48 +1,82 @@
 # car-hub
 
-Diário de bordo automotivo para registrar os serviços feitos nos seus carros (manutenções, reparos e preparações), acompanhar quanto você gastou e controlar o prazo das garantias.
+Diário de bordo automotivo para registrar manutenções, reparos e preparações, acompanhar o custo por veículo e controlar prazos de garantia.
 
-Trabalho prático de Tópicos Especiais em Programação II (UPF): **1ª entrega** (API) e **2ª entrega** (frontend), no mesmo repositório.
+![React](https://img.shields.io/badge/React-19-141619?style=flat-square&logo=react&logoColor=e68a00)
+![TypeScript](https://img.shields.io/badge/TypeScript-5%2F7-141619?style=flat-square&logo=typescript&logoColor=e68a00)
+![Express](https://img.shields.io/badge/Express-5-141619?style=flat-square&logo=express&logoColor=f2f2ef)
+![MongoDB](https://img.shields.io/badge/MongoDB-7-141619?style=flat-square&logo=mongodb&logoColor=4ade80)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-141619?style=flat-square&logo=tailwindcss&logoColor=e68a00)
 
-![Garagem](docs/screenshots/garagem.png)
+Trabalho da disciplina **Tópicos Especiais II**.
+
+[Problema](#problema-e-proposta) · [Funcionalidades](#funcionalidades) · [Telas](#telas) · [Tecnologias](#tecnologias) · [Como executar](#como-executar) · [Como usar](#como-usar) · [Arquitetura](#arquitetura-e-organização)
+
+![Garagem do car-hub](docs/screenshots/garagem.png)
+
+---
+
+## Problema e proposta
+
+O histórico de um carro costuma ficar espalhado entre notas fiscais de papel, conversas de oficina e planilhas. Isso causa três problemas:
+
+1. **Histórico de manutenção perdido:** não se sabe quando uma peça foi trocada nem a quilometragem na época.
+2. **Garantias esquecidas:** serviços e peças têm garantia de 3, 6 ou 12 meses, mas não há visibilidade do que está perto de vencer.
+3. **Sem visão financeira consolidada:** somar gastos por categoria e calcular o custo por quilômetro exige conta manual.
+
+No car-hub, o usuário cadastra os veículos da garagem e registra cada intervenção no diário do carro. O sistema calcula a data de expiração das garantias, atualiza o odômetro quando um serviço traz quilometragem maior e consolida métricas mensais e por categoria.
+
+### Identidade visual
+
+A interface se inspira nos painéis digitais GM dos anos 90 (Monza Classic e Kadett GSi): fundo grafite, visores LCD para odômetro e placa Mercosul, cluster de login interativo e iluminação em **Âmbar GM**, com opção de **Verde fósforo** no menu do usuário.
+
+---
 
 ## Funcionalidades
 
-- **Conta e sessão:** cadastro, login e logout. A sessão fica em um cookie `httpOnly` com JWT, então não é preciso entrar a cada clique.
-- **Visão geral:** painel inicial consolidado com total investido na garagem, gastos nos últimos 30 dias, comparação por veículo, alertas de garantias vencendo/expiradas e os últimos serviços.
-- **Garagem:** cadastro, edição e exclusão de carros, com placa no padrão Mercosul e odômetro atualizado automaticamente quando um serviço registra quilometragem maior.
-- **Diário de serviços:** registro de manutenção, reparo, preparação ou outro serviço, com data, valor, quilometragem e **garantia opcional em meses**. O backend calcula a data de expiração.
-- **Garantia:** cada serviço mostra se a garantia está vigente, vencendo (30 dias ou menos) ou expirada.
-- **Resumo por carro:** total gasto, custo por km, quantidade de serviços, data do último serviço, gasto por categoria e gráfico dos últimos 12 meses.
-- **Isolamento por usuário:** cada pessoa só enxerga os próprios carros e serviços.
-- **Interface:** tema escuro inspirado em painéis digitais GM dos anos 90 (grafite fosco, visores preto profundo e destaque âmbar com detalhes em vermelho e branco), responsiva para computador e celular.
+- **Conta e sessão:** cadastro com senha criptografada (`bcryptjs`), login, logout e restauração de sessão por cookie `httpOnly` com JWT, sem expor o token ao JavaScript.
+- **Visão geral (`Geral`):** total investido, gastos dos últimos 30 dias, resumo de garantias (vigentes, vencendo e expiradas), comparativo entre veículos, alertas de garantia e os 5 serviços mais recentes.
+- **Garagem (`Carros`):** CRUD de veículos (marca, modelo, ano, placa no padrão brasileiro/Mercosul, quilometragem e apelido opcional). A exclusão pede confirmação e remove em cascata os serviços do carro.
+- **Diário de serviços:** registros classificados em **Manutenção**, **Reparo**, **Preparação** ou **Outro**, com data (`dd/mm/aaaa`, calendário em português), valor em reais, quilometragem e garantia opcional de 1 a 120 meses.
+- **Regras automáticas no backend:**
+  - Cálculo da data de expiração da garantia em UTC, com ajuste para meses curtos e anos bissextos. Se os meses forem apagados na edição, a garantia é removida.
+  - Atualização do odômetro do veículo quando um serviço é criado ou editado com quilometragem acima da atual.
+- **Painel do carro:** custo total, custo por km, quantidade de serviços, ticket médio, data do último serviço, distribuição por categoria, histórico dos últimos 12 meses, filtro por categoria e busca por descrição.
+- **Isolamento entre usuários:** cada usuário acessa apenas os próprios veículos e serviços. Acesso a recursos de terceiros retorna `404`.
+- **Interface:** layout responsivo, skeletons de carregamento, estados vazios com atalhos, validação em tempo real e notificações *toast*.
+
+---
 
 ## Telas
 
-| Login | Visão geral |
+| Login (cluster digital interativo) | Visão geral (`Geral`) |
 |---|---|
 | ![Login](docs/screenshots/login.png) | ![Visão geral](docs/screenshots/dashboard.png) |
 
-| Novo serviço | Detalhe do carro |
+| Novo serviço (data PT-BR e prévia de garantia) | Detalhe do carro e diário de serviços |
 |---|---|
 | ![Novo serviço](docs/screenshots/novo-servico.png) | ![Detalhe do carro](docs/screenshots/detalhe-carro.png) |
+
+---
 
 ## Tecnologias
 
 | Camada | Tecnologias |
 |---|---|
-| Backend | Node.js, Express 5, TypeScript, MongoDB 7 com Mongoose 9, JWT (`jsonwebtoken`), `bcryptjs`, Swagger UI |
-| Testes do backend | Jest 30, `@swc/jest` e Supertest |
-| Frontend | React 19, TypeScript, Vite, React Router, TanStack Query, axios, react-hook-form e zod |
-| Interface | Tailwind CSS v4, shadcn/ui, Geist (Sans e Mono), sonner (notificações), lucide-react |
-| Infra | Docker Compose (MongoDB com volume persistente) |
+| Backend | Node.js, Express 5, TypeScript 5, MongoDB 7 com Mongoose 9, `jsonwebtoken`, `bcryptjs`, `cookie-parser`, `cors`, Swagger UI |
+| Testes do backend | Jest 30, `@swc/jest`, Supertest |
+| Frontend | React 19, TypeScript, Vite 8, React Router 7, TanStack Query 5, Axios, React Hook Form, Zod 4 |
+| Interface | Tailwind CSS v4, shadcn/ui (Radix UI), Geist Sans e Mono, `sonner`, `lucide-react` |
+| Qualidade e infra | ESLint 9, Prettier, `oxlint`, Docker Compose (MongoDB 7 com volume persistente) |
+
+---
 
 ## Como executar
 
 ### Pré-requisitos
 
-- Node.js 20 ou superior
-- Docker e Docker Compose
+- Node.js 20+ e `npm`
+- Docker e Docker Compose (para o MongoDB)
 
 ### 1. Banco de dados
 
@@ -51,7 +85,7 @@ cd backend
 docker compose up -d
 ```
 
-O MongoDB sobe no container `car-hub-mongo` (porta 27017), com o volume `mongo-data` para manter os dados.
+O MongoDB sobe no container `car-hub-mongo` (porta `27017`) com o volume `mongo-data`, que preserva os dados entre reinicializações.
 
 ### 2. Backend
 
@@ -65,7 +99,8 @@ npm run dev
 - API: `http://localhost:3000`
 - Swagger: `http://localhost:3000/docs`
 
-Troque o `JWT_SECRET` do `.env` por um valor longo e aleatório. O servidor não sobe sem ele.
+> [!IMPORTANT]
+> O backend só inicia com `JWT_SECRET` definido em `backend/.env`. O `.env.example` traz um valor para desenvolvimento local; em produção, use uma string longa e aleatória.
 
 ### 3. Frontend
 
@@ -78,114 +113,164 @@ npm install
 npm run dev
 ```
 
-Acesse `http://localhost:5173`. O Vite repassa as chamadas `/api/*` para o backend, então o cookie de sessão funciona sem configurar CORS.
+Acesse `http://localhost:5173`. Em desenvolvimento, o Vite encaminha as requisições `/api/*` para `VITE_API_PROXY_TARGET` (`http://localhost:3000`), o que mantém o cookie de sessão na mesma origem.
 
 ### 4. Dados de demonstração (opcional)
 
-Com o backend rodando:
+Com o MongoDB e o backend rodando:
 
 ```bash
 cd backend
 npm run seed
 ```
 
-Cria o usuário `demo@car-hub.dev` (senha `demo1234`) com 2 carros e 12 serviços, incluindo garantias vigentes, vencendo e expiradas.
+O script cria um usuário de demonstração com 2 veículos e 12 serviços distribuídos nos últimos meses, incluindo garantias vigentes, vencendo em menos de 30 dias e expiradas.
+
+- **E-mail:** `demo@car-hub.dev`
+- **Senha:** `demo1234`
+
+---
 
 ## Variáveis de ambiente
 
-### `backend/.env` (modelo em `backend/.env.example`)
+### `backend/.env`
 
-| Variável | Descrição | Exemplo |
-|---|---|---|
-| `PORT` | Porta da API | `3000` |
-| `MONGODB_URL` | Conexão com o MongoDB | `mongodb://localhost:27017/car-hub` |
-| `JWT_SECRET` | Segredo que assina o JWT (obrigatório) | `change-me-to-a-long-random-string` |
-| `CORS_ORIGIN` | Origem do frontend liberada no CORS | `http://localhost:5173` |
+| Variável | Obrigatória | Descrição | Exemplo |
+|---|---|---|---|
+| `PORT` | Não (padrão `3000`) | Porta HTTP da API | `3000` |
+| `MONGODB_URL` | Sim | String de conexão com o MongoDB | `mongodb://localhost:27017/car-hub` |
+| `JWT_SECRET` | Sim | Chave para assinar e validar o JWT | `change-me-to-a-long-random-string` |
+| `CORS_ORIGIN` | Não (padrão `http://localhost:5173`) | Origem liberada no CORS com `credentials: true` | `http://localhost:5173` |
 
-### `frontend/.env` (modelo em `frontend/.env.example`)
+### `frontend/.env`
 
-| Variável | Descrição | Exemplo |
-|---|---|---|
-| `VITE_API_URL` | Prefixo usado pelo frontend para chamar a API | `/api` |
-| `VITE_API_PROXY_TARGET` | Endereço do backend usado pelo proxy do Vite | `http://localhost:3000` |
+| Variável | Obrigatória | Descrição | Exemplo |
+|---|---|---|---|
+| `VITE_API_URL` | Não (padrão `/api`) | Prefixo base do Axios nas chamadas à API | `/api` |
+| `VITE_API_PROXY_TARGET` | Não (padrão `http://localhost:3000`) | Destino do proxy `/api` no servidor de desenvolvimento | `http://localhost:3000` |
+
+---
 
 ## Como usar
 
-1. Abra `http://localhost:5173` e crie uma conta (ou entre com o usuário demo).
-2. Na **Garagem**, clique em **Novo carro** e informe marca, modelo, ano, placa e quilometragem.
-3. Abra o carro em **Diário** e clique em **Novo serviço**.
-4. Informe categoria, data, descrição, valor e quilometragem. Se houver garantia, preencha os meses.
-5. Acompanhe o total gasto, os gastos por categoria e o estado de cada garantia. Use o filtro por categoria para achar um serviço.
-6. Edite ou exclua carros e serviços pelos ícones. Excluir um carro apaga também os serviços dele.
-7. Para sair, use o menu com seu nome no canto superior direito e escolha **Sair**.
+1. **Acesso:** abra `http://localhost:5173`. Entre com `demo@car-hub.dev` / `demo1234` (se rodou o seed) ou crie uma conta na aba **Cadastrar**, que já entra autenticada.
+2. **Visão geral (`Geral`):** consulte o total investido, os gastos dos últimos 30 dias, a contagem de garantias, a comparação entre carros e os alertas de garantia.
+3. **Veículos (`Carros`):** clique em **Novo carro** e informe marca, modelo, ano, placa (7 caracteres) e quilometragem. **Editar** e **Excluir** ficam no rodapé de cada card.
+4. **Serviços:** clique no card de um veículo, ou em **Novo serviço** na aba `Geral`. Informe categoria, data (`dd/mm/aaaa`, digitada ou pelo calendário), descrição, valor, quilometragem e meses de garantia, se houver.
+5. **Filtros e análise:** na tela do carro, filtre por categoria (**Todos**, **Manutenção**, **Reparo**, **Preparação**, **Outro**), busque por descrição e consulte os gráficos de distribuição por categoria e de evolução nos últimos 12 meses.
+6. **Menu do usuário:** o nome no canto superior direito alterna a iluminação do painel (**Âmbar GM** e **Verde fósforo**) e dá acesso ao **Sair**, que limpa o cookie e bloqueia as rotas privadas.
 
-## Autenticação
+---
 
-`POST /login` valida as credenciais e grava o cookie `token` (JWT de 7 dias, `httpOnly`, `SameSite=Lax`). As rotas de carros, serviços e `GET /me` exigem esse cookie. Sem ele, a API responde 401 e o frontend leva para a tela de login. Carros e serviços de outro usuário respondem 404.
+## Arquitetura e organização
 
-## Rotas da API
+### Fluxo de requisição e autenticação
 
-Documentação completa e testável em `http://localhost:3000/docs`.
+```mermaid
+flowchart LR
+    Browser["Navegador (React + TanStack Query)"] -->|"/api/* com cookie httpOnly"| Proxy["Vite Dev Proxy"]
+    Proxy -->|"HTTP + Cookie token"| API["Express 5 (requireAuth + authorizeOwner)"]
+    API -->|"Mongoose ODM"| DB[("MongoDB 7")]
+```
 
-| Rota | Descrição |
-|---|---|
-| `POST /users` | Cadastra usuário |
-| `POST /login` | Entra e grava o cookie de sessão |
-| `POST /logout` | Encerra a sessão |
-| `GET /me` | Usuário da sessão |
-| `GET /dashboard` | Visão geral consolidada (gastos, alertas de garantia e últimos serviços) |
-| `GET`, `POST /cars` | Lista e cria carros do usuário |
-| `GET`, `PUT`, `DELETE /cars/:id` | Consulta, atualiza e exclui um carro |
-| `GET /cars/:id/summary` | Resumo de gastos do carro (totais, custo/km e últimos 12 meses) |
-| `GET`, `POST /service-records` | Lista (`?carId=`) e cria serviços |
-| `GET`, `PUT`, `DELETE /service-records/:id` | Consulta, atualiza e exclui um serviço |
-| `GET /health` | Verifica se a API está no ar |
+1. **Cookie de sessão:** `POST /login` valida as credenciais e grava o cookie `token` (JWT de 7 dias, `httpOnly`, `SameSite=Lax`, `Secure` em produção).
+2. **Proteção de rotas:**
+   - No frontend, `ProtectedRoute` consulta `GET /me` ao iniciar e redireciona sessões anônimas para `/login`. Se uma chamada protegida retornar `401`, o interceptor do Axios limpa o estado e redireciona com aviso.
+   - No backend, `requireAuth` valida o cookie e injeta `req.userId`; `authorizeOwner` confirma que o recurso pertence ao usuário autenticado.
+3. **Identidade pelo token:** o frontend não envia `userId` no corpo nem na query. O identificador vem sempre do JWT.
 
-## Testes
+### Rotas da API
+
+A documentação OpenAPI 3.0 está em `http://localhost:3000/docs` e permite testar as rotas diretamente.
+
+| Método e rota | Acesso | Descrição |
+|---|---|---|
+| `GET /health` | Público | Verifica se a API está no ar |
+| `POST /users` | Público | Cadastra usuário |
+| `POST /login` | Público | Autentica e grava o cookie `token` |
+| `POST /logout` | Público | Limpa o cookie de sessão |
+| `GET /me` | Cookie | Retorna o usuário autenticado |
+| `GET /dashboard` | Cookie | Gastos, alertas de garantia e últimos 5 serviços |
+| `GET`, `POST /cars` | Cookie | Lista e cria carros do usuário |
+| `GET`, `PUT`, `DELETE /cars/:id` | Cookie + Dono | Consulta, atualiza ou exclui um carro e seus serviços |
+| `GET /cars/:id/summary` | Cookie + Dono | Totais, custo/km, categorias e últimos 12 meses |
+| `GET`, `POST /service-records` | Cookie + Dono | Lista (`?carId=`) e cria registros de serviço |
+| `GET`, `PUT`, `DELETE /service-records/:id` | Cookie + Dono | Consulta, atualiza ou exclui um serviço |
+
+### Estrutura de pastas
+
+```text
+car-hub/
+├── backend/
+│   ├── docker-compose.yml        MongoDB 7 com volume persistente
+│   ├── .env.example              Modelo das variáveis de ambiente da API
+│   ├── bruno/                    Coleção Bruno para testar os endpoints
+│   ├── tests/                    Testes unitários e de integração (services, middlewares, routes)
+│   └── src/
+│       ├── routes/               Rotas e encadeamento de middlewares
+│       ├── controllers/          Tradução HTTP (status, params, cookies)
+│       ├── services/             Regras de negócio (garantia, métricas, dashboard, senha)
+│       ├── repositories/         Consultas e persistência no MongoDB
+│       ├── models/               Schemas e normalização JSON do Mongoose
+│       ├── middlewares/          Validação de entrada, autenticação JWT e autorização de dono
+│       ├── config/               Conexão com o banco, cookie/JWT e Swagger
+│       ├── scripts/              Script `seed` com dados de demonstração
+│       ├── errors/               Classes e tratamento de erros HTTP
+│       └── utils/                Token JWT, normalização de placa, datas e métricas
+├── frontend/
+│   ├── .env.example              Modelo das variáveis de ambiente do frontend
+│   └── src/
+│       ├── pages/                LoginPage, RegisterPage, DashboardPage, CarsPage, CarDetailPage, NotFoundPage
+│       ├── components/           Componentes reutilizáveis (layout/, auth/, ui/ shadcn)
+│       ├── services/             Cliente Axios, tradução de erros e chamadas por domínio
+│       ├── hooks/                Queries e mutações (TanStack Query), tema e telemetria do login
+│       ├── contexts/             AuthProvider (sessão global via `/me`)
+│       ├── lib/                  Formatadores (BRL, data, placa), validação e regras de garantia
+│       └── types/                Tipos TypeScript dos contratos da API
+└── docs/
+    ├── ROTEIRO-DEMO.md           Roteiro para apresentação ao vivo
+    └── screenshots/              Capturas de tela usadas neste README
+```
+
+### Camadas e Atomic Design
+
+- **Backend em camadas:** `routes → middlewares → controllers → services → repositories → models`. As regras de negócio ficam em `services`, testáveis sem Express nem banco.
+- **Frontend (Atomic Design):**
+  - **Átomos:** `components/ui/*` (shadcn/ui), `Wordmark`, `SegmentedBar`, `SevenSegmentChar`.
+  - **Moléculas:** `MetricCard`, `PageHeader`, `LicensePlate`, `OdometerDisplay`, `WarrantyBadge`, `DateInput`, `AuthField`, `AuxBarRow`, `RightTachometer`.
+  - **Organismos:** `SummaryCards`, `SpentByTypeChart`, `MonthlySpentChart`, `CarFormDialog`, `ServiceRecordFormDialog`.
+  - **Templates e páginas:** `AppLayout`, `MonzaAuthCluster` e `pages/*`.
+
+---
+
+## Testes e qualidade
+
+### Backend
 
 ```bash
 cd backend
 npm test
 ```
 
-Os testes usam repositórios simulados, então não precisam do Docker. Cobrem o CRUD, a validação de dados, o login, o cookie, o acesso sem sessão e o isolamento entre usuários. Outros comandos: `npm run test:coverage`, `npm run lint` e `npm run format:check`.
+A suíte tem **202 testes em 11 suítes**: regras de serviço, cálculo de garantia, validação de campos, autenticação por cookie, acesso sem sessão e isolamento entre usuários. Os repositórios são simulados com `jest.mock`, então o Docker não precisa estar ligado.
 
-No frontend: `npm run lint` e `npm run build`.
+Outros comandos: `npm run test:coverage`, `npm run lint`, `npm run format:check` e `npm run build`.
 
-## Estrutura do projeto
+### Frontend
 
-```
-car-hub/
-├── backend/
-│   ├── docker-compose.yml
-│   ├── .env.example
-│   └── src/
-│       ├── routes/        rotas e proteção por login
-│       ├── controllers/   tradução HTTP
-│       ├── services/      regras de negócio (garantia, resumo, senha)
-│       ├── repositories/  acesso ao MongoDB
-│       ├── models/        schemas do Mongoose
-│       ├── middlewares/   validação, autenticação e dono do recurso
-│       ├── config/        banco, autenticação e Swagger
-│       ├── scripts/       seed de demonstração
-│       └── ...            types, errors, utils
-├── frontend/
-│   ├── .env.example
-│   └── src/
-│       ├── pages/         Login, Cadastro, Visão geral, Garagem, Detalhe do carro
-│       ├── components/    interface reutilizável (ui/ é o shadcn)
-│       ├── services/      chamadas HTTP (axios)
-│       ├── hooks/         consultas e mutações (TanStack Query)
-│       ├── contexts/      sessão do usuário
-│       └── lib/           formatadores e regras de apresentação
-└── docs/screenshots/      imagens deste README
+```bash
+cd frontend
+npm run lint
+npm run build
 ```
 
-## Decisões de projeto
+---
 
-- **Cookie `httpOnly` com JWT:** o token não fica acessível ao JavaScript, o que reduz o risco de roubo por XSS.
-- **Proxy do Vite:** o navegador fala só com a origem do frontend, e o cookie funciona sem configuração extra de CORS.
-- **Dono pelo token:** o backend usa o id do usuário do JWT, e o frontend nunca envia `userId`.
-- **Tema escuro (GM anos 90):** profundidade em três planos (fundo `#08090a`, painéis grafite `#141619` e visores/badges recuados em `#070809`), destaque âmbar e detalhes em vermelho escuro e branco, com alternância para verde fósforo no menu do usuário (canto superior direito).
-- **Atomic Design no frontend:** componentes divididos em Átomos (`ui/*`, `Wordmark`, `SegmentedBar`, `SevenSegmentChar`), Moléculas (`MetricCard`, `PageHeader`, `LicensePlate`, `OdometerDisplay`, `WarrantyBadge`, `DateInput`, `AuthField`, `AuxBarRow`, `RightTachometer`), Organismos (`SummaryCards`, `SpentByTypeChart`, `MonthlySpentChart`, `CarFormDialog`, `ServiceRecordFormDialog`), Templates (`AppLayout`, `MonzaAuthCluster`) e Páginas (`pages/*`).
-- **Camadas no backend** (rotas, controllers, services, repositories e models) e **páginas, componentes e serviços no frontend**, para manter cada arquivo pequeno e fácil de achar.
+## Solução de problemas
+
+| Problema | Causa provável | Solução |
+|---|---|---|
+| Backend encerra ao iniciar com erro de `JWT_SECRET` | Falta o `.env` ou a variável `JWT_SECRET` | Rode `cp .env.example .env` em `backend/` |
+| Erro de conexão com o MongoDB no `npm run dev` | Container do banco parado | Rode `docker compose up -d` em `backend/` |
+| Frontend exibe "Não foi possível falar com o servidor" | Backend desligado ou porta errada | Confirme o `npm run dev` na porta `3000` e o `VITE_API_PROXY_TARGET` em `frontend/.env` |
+| `demo@car-hub.dev` não entra ou aparece vazia | Seed não executado | Com backend e MongoDB no ar, rode `cd backend && npm run seed` |
