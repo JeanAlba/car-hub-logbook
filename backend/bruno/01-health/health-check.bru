@@ -1,0 +1,21 @@
+meta {
+  name: health-check
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/health
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  baseUrl: localhost:3000
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+}

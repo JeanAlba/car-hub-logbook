@@ -1,0 +1,32 @@
+meta {
+  name: update-car
+  type: http
+  seq: 10
+}
+
+put {
+  url: {{baseUrl}}/cars/{{carId}}
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "brand": "Volkswagen",
+    "model": "Golf GTI Stage 2",
+    "year": 2020,
+    "plate": "ABC1D23",
+    "mileage": 36000,
+    "nickname": "Track Toy"
+  }
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+}

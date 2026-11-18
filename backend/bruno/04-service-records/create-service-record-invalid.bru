@@ -1,0 +1,29 @@
+meta {
+  name: create-service-record-invalid
+  type: http
+  seq: 13
+}
+
+post {
+  url: {{baseUrl}}/service-records
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "carId": "{{carId}}",
+    "type": "INVALID_TYPE",
+    "cost": -50
+  }
+}
+
+tests {
+  test("status is 400", function() {
+    expect(res.getStatus()).to.equal(400);
+  });
+}

@@ -1,0 +1,23 @@
+meta {
+  name: delete-car
+  type: http
+  seq: 18
+}
+
+delete {
+  url: {{baseUrl}}/cars/{{carId}}
+  body: none
+  auth: none
+}
+
+script:post-response {
+  if (typeof bru.setNextRequest === 'function') {
+    bru.setNextRequest(null);
+  }
+}
+
+tests {
+  test("status is 204", function() {
+    expect(res.getStatus()).to.equal(204);
+  });
+}

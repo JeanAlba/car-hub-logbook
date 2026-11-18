@@ -1,0 +1,17 @@
+meta {
+  name: get-service-record
+  type: http
+  seq: 15
+}
+
+get {
+  url: {{baseUrl}}/service-records/{{serviceRecordId}}
+  body: none
+  auth: none
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+}

@@ -1,0 +1,39 @@
+meta {
+  name: create-user
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/users
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "Ana Silva",
+    "email": "{{email}}",
+    "password": "secretPassword123"
+  }
+}
+
+script:pre-request {
+  bru.setVar("email", "user" + Date.now() + "@example.com");
+}
+
+script:post-response {
+  if (res.getStatus() === 201) {
+    bru.setVar("userId", res.getBody().id);
+  }
+}
+
+tests {
+  test("status is 201", function() {
+    expect(res.getStatus()).to.equal(201);
+  });
+}

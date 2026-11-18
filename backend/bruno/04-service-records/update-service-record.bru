@@ -1,0 +1,32 @@
+meta {
+  name: update-service-record
+  type: http
+  seq: 16
+}
+
+put {
+  url: {{baseUrl}}/service-records/{{serviceRecordId}}
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "type": "MAINTENANCE",
+    "description": "Troca de oleo Motul e revisao completa",
+    "cost": 500,
+    "date": "2026-02-15",
+    "mileage": 36500,
+    "warrantyMonths": 12
+  }
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+}
